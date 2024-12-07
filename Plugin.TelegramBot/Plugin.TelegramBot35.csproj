@@ -49,8 +49,8 @@
     <Reference Include="SAL.Flatbed, Version=1.2.9.0, Culture=neutral, PublicKeyToken=a8ac5fc45c3adb8d, processorArchitecture=MSIL">
       <HintPath>..\packages\SAL.Flatbed.1.2.9\lib\net20\SAL.Flatbed.dll</HintPath>
     </Reference>
-    <Reference Include="SAL.Interface.TelegramBot, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SAL.Interface.TelegramBot.1.1.0\lib\net48\SAL.Interface.TelegramBot.dll</HintPath>
+    <Reference Include="SAL.Interface.TelegramBot, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SAL.Interface.TelegramBot.1.1.1\lib\net48\SAL.Interface.TelegramBot.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
