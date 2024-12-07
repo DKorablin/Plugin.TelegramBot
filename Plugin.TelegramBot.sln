@@ -6,7 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29EFF129-D181-471B-939B-05374FAEB871}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		Plugin.Template.dll.nuspec = Plugin.Template.dll.nuspec
+		Plugin.TelegramBot.dll.nuspec = Plugin.TelegramBot.dll.nuspec
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -17,7 +17,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\test.yml = .github\workflows\test.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.TelegramBot35", "Plugin.TelegramBot\Plugin.TelegramBot35.csproj", "{81F5D014-B9DB-43A9-9457-16B3BE9E7083}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (Dialog)|Any CPU = Debug (Dialog)|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Debug (Dialog)|Any CPU.ActiveCfg = Debug (Dialog)|Any CPU
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Debug (Dialog)|Any CPU.Build.0 = Debug (Dialog)|Any CPU
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81F5D014-B9DB-43A9-9457-16B3BE9E7083}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
