@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("Danila Korablin")]
 [assembly: AssemblyProduct("Plugin.TelegramBot")]
-[assembly: AssemblyCopyright("Copyright © Danila Korablin 2017-2023")]
+[assembly: AssemblyCopyright("Copyright © Danila Korablin 2017-2024")]
 #endif
 
 //C:\Visual Studio Projects\C#\sal.ProcessingServices\sal.Host\Flatbed.WinService.exe
