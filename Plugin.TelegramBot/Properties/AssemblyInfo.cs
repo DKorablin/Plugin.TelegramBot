@@ -8,9 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("ProjectUrl", "https://github.com/DKorablin/SAL.Interface.TelegramBot")]
 #else
 
-[assembly: AssemblyTitle("Plugin.TelegramBot")]
 [assembly: AssemblyDescription("Telegram messenger bot host plugin")]
-[assembly: AssemblyProduct("Plugin.TelegramBot")]
 [assembly: AssemblyCopyright("Copyright © Danila Korablin 2017-2025")]
 #endif
 
