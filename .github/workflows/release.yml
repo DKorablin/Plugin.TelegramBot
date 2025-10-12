@@ -91,6 +91,10 @@ jobs:
         /p:SignAssembly=true
         /p:Version=${{needs.version.outputs.new_version}}
         /p:AssemblyOriginatorKeyFile="${{steps.sign_key_file.outputs.filePath}}"
+    - name: Listing release directory
+      run: |
+        echo "Listing files in the release directory:"
+        ls ${{env.ArtifactsDir}} -Recurse
     - name: Finding portable executables to sign
       id: find_binaries
       run: |
