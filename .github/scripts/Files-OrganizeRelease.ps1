@@ -19,7 +19,21 @@ foreach ($dir in $frameworkDirs) {
 	$frameworkName = $dir.Name
 	Write-Host "----- Processing framework: $frameworkName -----"
 
-	# --- Part 1: Logic from the old "Extract" step ---
+	# --- Part 1: Organize original build artifacts into a 'Plugin' subfolder ---
+	Write-Host "Organizing built artifacts into 'Plugin' subfolder..."
+	$pluginFolderPath = Join-Path -Path $dir.FullName -ChildPath "Plugin"
+	New-Item -ItemType Directory -Path $pluginFolderPath -Force | Out-Null
+	
+	# Get all items in the directory to move them
+	$itemsToMove = Get-ChildItem -Path $dir.FullName -Force
+	foreach ($item in $itemsToMove) {
+		# Make sure not to move the newly created 'Plugin' folder into itself
+		if ($item.Name -ne "Plugin") {
+			Move-Item -Path $item.FullName -Destination $pluginFolderPath
+		}
+	}
+
+	# --- Part 2: Extract dependency assets into the root of the framework folder ---
 	$assetFilename = "Flatbed.Dialog.Lite_${DependencyVersion}_${frameworkName}.zip"
 	$assetFilePath = Join-Path -Path $BinDirectory -ChildPath $assetFilename
 
@@ -36,7 +50,7 @@ foreach ($dir in $frameworkDirs) {
 		exit 1
 	}
 
-	# --- Part 2: Logic from the old "Zipping" step ---
+	# --- Part 3: Create the final zipped release archive ---
 	Write-Host "Creating final release archive for $frameworkName..."
 	$zipFileName = "${SolutionName}_v${ReleaseVersion}_${frameworkName}.zip"
 	$destinationPath = Join-Path -Path $dir.Parent.FullName -ChildPath $zipFileName
