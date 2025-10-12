@@ -35,7 +35,13 @@ try {
 		$frameworkName = $dir.Name
 		Write-Host "----- Processing assets for framework: $frameworkName -----"
 
-		$requiredAssetFilename = "Flatbed.Dialog.Lite_${latestVersion}_${frameworkName}.zip"
+		$assetFrameworkName = $frameworkName
+		if ($frameworkName -eq 'netstandard2.0' -or $frameworkName -eq 'netstandard2.1') {
+			$assetFrameworkName = 'net8.0-windows'
+			Write-Host "Redirecting asset search from '$frameworkName' to '$assetFrameworkName'."
+		}
+
+		$requiredAssetFilename = "Flatbed.Dialog.Lite_${latestVersion}_${assetFrameworkName}.zip"
 		Write-Host "Searching for required asset: $requiredAssetFilename"
 
 		# Find the specific asset needed for this framework
@@ -46,8 +52,10 @@ try {
 			exit 1
 		}
 
-		# Prepare for download
-		$destinationPath = Join-Path -Path $BinDirectory -ChildPath $assetToDownload.name
+		# Prepare for download (Change the result file name)
+		$destinationFilename = "Flatbed.Dialog.Lite_${latestVersion}_${frameworkName}.zip"
+		$destinationPath = Join-Path -Path $BinDirectory -ChildPath $destinationFilename
+
 		$downloadHeaders = @{
 			"Authorization"	= "Bearer $GitHubToken"
 			"Accept"		= "application/octet-stream"

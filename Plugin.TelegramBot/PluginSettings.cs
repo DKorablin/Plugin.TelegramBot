@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design;
-//using System.Drawing.Design;
 using Sal = SAL.Interface.TelegramBot;
 
 namespace Plugin.TelegramBot
@@ -62,7 +60,9 @@ namespace Plugin.TelegramBot
 		[Category("General")]
 		[DisplayName("Plugin Priority")]
 		[Description("Basic priority of plugins when processing a new message")]
-		//[Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
+		#if NETFRAMEWORK
+		[Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		#endif
 		public String Priority
 		{
 			get => this._priority;
