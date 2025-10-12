@@ -7,17 +7,17 @@ using SAL.Flatbed;
 
 namespace Plugin.TelegramBot.Plugins
 {
-	/// <summary>Резолвер всех хендлеров чата в плагине</summary>
+	/// <summary>Resolver of all chat handlers in the plugin</summary>
 	internal class BotPluginResolver
 	{
 		private static readonly Type ChatMarkerType = typeof(IChatMarker);
 		private static readonly Type ChatHandlerType = typeof(ChatHandler);
 		private readonly BotChatFacade[] _instances;
 
-		/// <summary>Интерфейс плагина который является первоисточником всех хендлеров</summary>
+		/// <summary>Plugin interface which is the source of all handlers</summary>
 		public IPluginDescription BotPlugin { get; private set; }
 
-		/// <summary>Массив фасадов всех чатов плагина</summary>
+		/// <summary>Array of facades for all plugin chats</summary>
 		public IEnumerable<BotChatFacade> Instances
 		{
 			get
@@ -27,11 +27,11 @@ namespace Plugin.TelegramBot.Plugins
 			}
 		}
 
-		/// <summary>Кол-во загруженных фасадов</summary>
+		/// <summary>Number of loaded facades</summary>
 		public Int32 Count { get => this._instances.Length; }
 
-		/// <summary>Создание экземпляра класса с поиском всех инстансов и обёртка их в фасад</summary>
-		/// <param name="plugin">Плагин в котором ищем все инстансы</param>
+		/// <summary>Create class instance, find all instances and wrap them into facades</summary>
+		/// <param name="plugin">Plugin in which we search all instances</param>
 		public BotPluginResolver(IPluginDescription plugin)
 		{
 			this.BotPlugin = plugin;
@@ -39,7 +39,7 @@ namespace Plugin.TelegramBot.Plugins
 
 			List<BotChatFacade> instances = new List<BotChatFacade>();
 			if(botAssembly.GetReferencedAssemblies().Any(p => p.FullName == BotPluginResolver.ChatMarkerType.Assembly.GetName().FullName))
-			{//TODO: Надо проверить что при BindingRedirect сборки цепляются верно (Т.е. если в конфиге редирект с 1.0 на 2.0, то и в коде reference будет на 2.0)
+			{//TODO: Need to check that assemblies bind correctly with BindingRedirect (i.e. if config redirects 1.0 to 2.0 then code reference is also 2.0)
 				foreach(Type t in botAssembly.GetTypes())
 				{
 					if(t.BaseType == BotPluginResolver.ChatHandlerType)

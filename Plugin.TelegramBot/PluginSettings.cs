@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Drawing.Design;
+//using System.Drawing.Design;
 using Sal = SAL.Interface.TelegramBot;
 
 namespace Plugin.TelegramBot
 {
-	/// <summary>Настройки хоста бота</summary>
+	/// <summary>Bot host settings</summary>
 	public class PluginSettings : INotifyPropertyChanged
 	{
-		/// <summary>Строковые наименования своёств для INotifyPropertyChanged</summary>
+		/// <summary>String names of properties for INotifyPropertyChanged</summary>
 		internal static class Properties
 		{
 			public const String Token = "Token";
@@ -30,9 +30,9 @@ namespace Plugin.TelegramBot
 		private Sal.ParseModeType _parseMode = Sal.ParseModeType.Default;
 		private TimeSpan _reconnectTimeout = MinTimeout;
 
-		/// <summary>The token to use to connect to Telegam API</summary>
+		/// <summary>The token to use to connect to Telegram API</summary>
 		[Category("General")]
-		[Description("The token to use to connect to Telegam API")]
+		[Description("The token to use to connect to Telegram API")]
 		public String Token
 		{
 			get => this._token;
@@ -48,7 +48,7 @@ namespace Plugin.TelegramBot
 			set => this.SetField(ref this._usageTitle, value, Properties.UsageTitle);
 		}
 
-		/// <summary>Action when clicking on a button in a message:\r\ntrue - Rewrite message; false - Create a new message</summary>
+		/// <summary>Action when clicking on a button in a message: true - Rewrite message; false - Create a new message</summary>
 		[Category("UI")]
 		[Description("Action when clicking on a button in a message:\r\ntrue - Rewrite message; false - Create a new message")]
 		[DefaultValue(true)]
@@ -62,7 +62,7 @@ namespace Plugin.TelegramBot
 		[Category("General")]
 		[DisplayName("Plugin Priority")]
 		[Description("Basic priority of plugins when processing a new message")]
-		[Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
+		//[Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
 		public String Priority
 		{
 			get => this._priority;

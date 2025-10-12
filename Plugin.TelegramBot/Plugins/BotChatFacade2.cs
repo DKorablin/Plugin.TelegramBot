@@ -10,7 +10,8 @@ namespace Plugin.TelegramBot.Plugins
 {
 	internal class BotChatFacade2 : BotChatFacade
 	{
-		private Boolean _isProcessMessageOverriden;
+		private readonly Boolean _isProcessMessageOverridden;
+
 		public BotChatFacade2(IPluginDescription botHost, Type instanceType)
 			: base(botHost, instanceType)
 		{
@@ -24,7 +25,7 @@ namespace Plugin.TelegramBot.Plugins
 				baseMethod.GetParameters().Select(p => p.ParameterType).ToArray(),
 				null);
 
-			this._isProcessMessageOverriden = method != null;
+			this._isProcessMessageOverridden = method != null;
 		}
 
 		protected override T CreateChatInstance<T>(Message message)
@@ -35,7 +36,7 @@ namespace Plugin.TelegramBot.Plugins
 		}
 
 		public override Reply[] ProcessMessage(Message message)
-			=> this._isProcessMessageOverriden
+			=> this._isProcessMessageOverridden
 				? base.ProcessMessage(message)
 				: null;
 	}

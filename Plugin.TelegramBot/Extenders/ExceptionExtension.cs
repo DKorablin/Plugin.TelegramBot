@@ -7,15 +7,15 @@ namespace Plugin.TelegramBot
 {
 	internal static class ExceptionExtension
 	{
-		/// <summary>Фатальная ошибка, которую обрабатывать не надо</summary>
-		/// <param name="exception">Ошибка для проверки</param>
-		/// <returns>Ошибка фатальная и обрабатывать нет смысла</returns>
+		/// <summary>Fatal error that should not be processed</summary>
+		/// <param name="exception">Error to check</param>
+		/// <returns>The error is fatal and there is no point in handling it</returns>
 		public static Boolean IsFatal(this Exception exception)
 		{
 			while(exception != null)
 			{
-				if((exception is OutOfMemoryException && !(exception is InsufficientMemoryException))//Нет смысла занимать больше памяти
-					|| exception is ThreadAbortException//Ошибка происходит при редиректе с одной страницы на другую
+				if((exception is OutOfMemoryException && !(exception is InsufficientMemoryException))//No point in allocating more memory
+					|| exception is ThreadAbortException//Error occurs during redirect from one page to another
 					|| exception is AccessViolationException
 					|| exception is SEHException)
 					return true;

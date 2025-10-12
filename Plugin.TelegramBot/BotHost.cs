@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Plugin.TelegramBot.Data;
-using SAL.Flatbed;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Exceptions;
@@ -35,7 +34,7 @@ namespace Plugin.TelegramBot
 
 		private TelegramBotClient BotClient { get; set; }
 
-		public Boolean IsRecieving { get => this.BotClient.IsReceiving; }
+		public Boolean IsReceiving { get => this.BotClient.IsReceiving; }
 
 		public BotHost(Plugin plugin, String token)
 		{//TODO: https://github.com/TelegramBots/Telegram.Bot.Extensions.Passport/blob/f101d81bea4833a16e2d169c98559d2d526c0f86/src/Quickstart/Program.cs
@@ -51,7 +50,7 @@ namespace Plugin.TelegramBot
 
 		private void ReconnectTimer_InvokeTimer(Object state)
 		{
-			if(!this.IsRecieving)
+			if(!this.IsReceiving)
 			{
 				this.Plugin.Trace.TraceEvent(TraceEventType.Verbose, 7, "TelegramBot -> Reconnecting...");
 				this._reconnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -59,7 +58,7 @@ namespace Plugin.TelegramBot
 			}
 		}
 
-		/// <summary>Запуск бота</summary>
+		/// <summary>Starting Telegram bot</summary>
 		private void Start()
 		{
 			this.Stop();
@@ -86,7 +85,7 @@ namespace Plugin.TelegramBot
 				else
 				{
 					if(t.IsCanceled)
-						this.Plugin.Trace.TraceEvent(TraceEventType.Stop, 0, "TelegramBot -> Запуск бота прерван ({0})", sw.Elapsed);
+						this.Plugin.Trace.TraceEvent(TraceEventType.Stop, 0, "TelegramBot -> Bot start canceled ({0})", sw.Elapsed);
 					else if(t.Exception != null)
 					{
 						Exception exc = t.Exception is AggregateException ? t.Exception.InnerException : t.Exception;
@@ -96,7 +95,7 @@ namespace Plugin.TelegramBot
 						this.Plugin.Trace.TraceData(TraceEventType.Error, 10, exc);
 						this._reconnectTimer.Change(BotHost.DueTimeout, this.Plugin.Settings.ReconnectTimeout);
 					} else
-						this.Plugin.Trace.TraceEvent(TraceEventType.Error, 10, "TelegramBot -> Не удалось подключиться к серверу Telegram ({0})", sw.Elapsed);
+						this.Plugin.Trace.TraceEvent(TraceEventType.Error, 10, "TelegramBot -> Failed to connect to Telegram server ({0})", sw.Elapsed);
 				}
 			});
 		}
@@ -104,7 +103,7 @@ namespace Plugin.TelegramBot
 		private void OnConnected(User user, TimeSpan elapsed)
 		{
 			this.BotClient.StartReceiving();
-			this.Plugin.Trace.TraceEvent(TraceEventType.Start, 0, "TelegramBot -> Запущен под пользователем: {0} ({1})", user.Username, elapsed);
+			this.Plugin.Trace.TraceEvent(TraceEventType.Start, 0, "TelegramBot -> Run under user credentials: {0} ({1})", user.Username, elapsed);
 			this.Plugin.OnConnected(this, EventArgs.Empty);
 
 		}
@@ -116,7 +115,7 @@ namespace Plugin.TelegramBot
 			this.Plugin.OnDisconnected(this, EventArgs.Empty);
 		}
 
-		/// <summary>Остановка бота</summary>
+		/// <summary>Stopping the bot</summary>
 		public void Stop()
 		{
 			if(this.BotClient == null)
@@ -132,17 +131,17 @@ namespace Plugin.TelegramBot
 				this.BotClient.OnInlineQuery -= this.BotOnInlineQueryReceived;
 				this.BotClient.OnInlineResultChosen -= this.BotOnChosenInlineResultReceived;
 				this.BotClient.OnReceiveError -= this.BotOnReceiveError;
-				this.Plugin.Trace.TraceEvent(TraceEventType.Stop, 1, "TelegramBot -> Остановка бота");
+				this.Plugin.Trace.TraceEvent(TraceEventType.Stop, 1, "TelegramBot -> Bot stopping");
 			}
 		}
 
-		/// <summary>Отправить сообщение в чат с клиентом</summary>
-		/// <param name="chatId">Идентификатор чата с получателем сообщения</param>
-		/// <param name="message">Сообщение клиенту</param>
+		/// <summary>Send a message to the client chat</summary>
+		/// <param name="chatId">Chat identifier with the message recipient</param>
+		/// <param name="message">Message to the client</param>
 		public void SendMessageToChat(Int64 chatId, String message)
 		{
 			if(String.IsNullOrWhiteSpace(message))
-				throw new ArgumentException("Необходимо указать текст для отправки в чат", "message");
+				throw new ArgumentException("You must specify the text to send to the chat", "message");
 
 			SalResponse.Reply reply = new SalResponse.Reply()
 			{
@@ -151,14 +150,14 @@ namespace Plugin.TelegramBot
 			this.SendMessageToChat(chatId, reply);
 		}
 
-		/// <summary>Отправить файл в чат с клиентом</summary>
-		/// <param name="chatId">Идентификатор чата с получателем сообщения</param>
-		/// <param name="name">Наименование файла</param>
-		/// <param name="payload">Содержимое файла</param>
+		/// <summary>Send a file to the client chat</summary>
+		/// <param name="chatId">Chat identifier with the message recipient</param>
+		/// <param name="name">File name</param>
+		/// <param name="payload">File content</param>
 		public void SendMessageToChat(Int64 chatId, String name, Byte[] payload)
 		{
 			if(payload == null || payload.Length == 0)
-				throw new ArgumentNullException("payload", "Необходимо указать данные для передачи");
+				throw new ArgumentNullException("payload", "You must specify the data to transfer");
 
 			SalResponse.Reply reply = new SalResponse.Reply()
 			{
@@ -186,7 +185,7 @@ namespace Plugin.TelegramBot
 					? this.Plugin.Settings.DefaultParseMode
 					: reply.ParseMode);
 
-				String[] messages = Utils.Split(reply.Title, 2048);//TODO: Тут возможно разделение сообщения, так что нужно более "умное" форматирование
+				String[] messages = Utils.Split(reply.Title, 2048);//TODO: Message may be split here so need smarter formatting
 				if(messages.Length > 1)
 					for(Int32 loop = 0; loop < messages.Length - 1; loop++)
 					{
@@ -230,7 +229,7 @@ namespace Plugin.TelegramBot
 							 //this.Plugin.Trace.TraceData(TraceEventType.Error, 12, JsonConvert.SerializeObject(message));<-Trying to add message to body
 						break;
 					case 429://Too Many Requests: retry after 833
-						this._chatOpitions.TooManyRequestsLock(chatId);
+						this._chatOptions.TooManyRequestsLock(chatId);
 						break;
 					}
 					apiExc.Data.Add(nameof(chatId), chatId);
@@ -253,7 +252,7 @@ namespace Plugin.TelegramBot
 
 		private async Task<Message> SendMessageToChatAsync(Int64 chatId, SalResponse.Reply reply, String message, ParseMode parseMode)
 		{
-			if(this._chatOpitions.IsTooManyRequestsLock(chatId))
+			if(this._chatOptions.IsTooManyRequestsLock(chatId))
 				throw new ArgumentException($"Chat {chatId} temporary locked", nameof(chatId));
 
 			SalResponse.IReplyMarkup markup = reply.Markup;
@@ -287,7 +286,7 @@ namespace Plugin.TelegramBot
 				else
 					return await this.BotClient.EditMessageTextAsync(chatId, editMessageId.Value, message, parseMode: parseMode, replyMarkup: kb);
 
-				/*if(keyboard.EditMessageId != null)//TODO: По другому пока никак не переписать сообщение...
+				/*if(keyboard.EditMessageId != null)//TODO: There is no other way to rewrite the message for now...
 					await this.BotClient.DeleteMessageAsync(chatId, keyboard.EditMessageId.Value);*/
 
 			} else if(markup is SalResponse.ForceReplyMarkup)
@@ -302,7 +301,7 @@ namespace Plugin.TelegramBot
 			throw new NotSupportedException("Unable to parse reply");
 		}
 
-		private readonly RuntimeChatOptionsCollection _chatOpitions = new RuntimeChatOptionsCollection();
+		private readonly RuntimeChatOptionsCollection _chatOptions = new RuntimeChatOptionsCollection();
 
 		private void BotOnReceiveError(Object sender, ReceiveErrorEventArgs args)
 		{
@@ -326,7 +325,7 @@ namespace Plugin.TelegramBot
 				IEnumerable<SalResponse.Reply> reply = this.GetPluginReply(iMessage);
 
 				if(reply == null)
-				{//Записываем нераспознанное сообщение
+				{//Log unrecognized message
 					this.TraceUnknownMessage(iMessage);
 					return;
 				}
@@ -338,7 +337,7 @@ namespace Plugin.TelegramBot
 						SalResponse.IReplyMarkup markup = item.Markup;
 						ParseMode parseMode = (ParseMode)this.Plugin.Settings.DefaultParseMode;
 
-						if(markup == null && item.Title.Length < 100)//HACK: Размер Callback не влезает определённый размер
+						if(markup == null && item.Title.Length < 100)//HACK: Callback size does not fit defined limit
 							await this.BotClient.AnswerCallbackQueryAsync(args.CallbackQuery.Id, item.Title);
 						else
 							this.SendMessageToChat(args.CallbackQuery.Message.Chat.Id, item);
@@ -377,9 +376,9 @@ namespace Plugin.TelegramBot
 				if(reply != null)
 				{
 					foreach(SalResponse.Reply item in reply)
-						if(item != SalResponse.Reply.Empty)//Пропускаем пустые ответы
+						if(item != SalResponse.Reply.Empty)//Skip empty replies
 							this.SendMessageToChat(iMessage.Chat.Id, item);
-				} else//Невозможно обработать запрос
+				} else//Unable to process request
 					this.Plugin.Trace.TraceEvent(TraceEventType.Warning, 7, "TelegramBot -> Empty reply");
 			}catch(Exception exc)
 			{
@@ -391,24 +390,22 @@ namespace Plugin.TelegramBot
 		}
 
 		private void TraceUnknownMessage(SalRequest.Message message)
-		{//TODO: Тут может понадобиться история общения с клиентом
+		{//TODO: Chat history with client may be needed
 			this.Plugin.Trace.TraceData(TraceEventType.Warning, 7, JsonConvert.SerializeObject(message));
 		}
 
 		#region BotPlugins
-		/// <summary>Обработать сообщение и получить ответ от плагина</summary>
-		/// <param name="message">Обрабатываемое сообщение от телеграма</param>
-		/// <remarks>
-		/// TODO: Добавить роли для плагинов, при которых только определённые пользователи могут получить доступ к определённым плагинам (Спрятать в IPlugin)
-		/// </remarks>
-		/// <returns>Ответ от плагина</returns>
+		/// <summary>Process the message and get the reply from plugin</summary>
+		/// <param name="message">Processed message from Telegram</param>
+		/// <remarks>TODO: Add roles for plugins so that only certain users can access specific plugins (Hide in IPlugin)</remarks>
+		/// <returns>Reply from plugin</returns>
 		private IEnumerable<SalResponse.Reply> GetPluginReply(SalRequest.Message message)
-		{//TODO: Возможно придётся переделать на возврат нескольких ответов из одного плагина. В такой случае можно будет переделать на M(delegate<Message> msg)
+		{//TODO: May need to refactor to return multiple replies from one plugin. In that case can change to M(delegate<Message> msg)
 
 			if(message.Type == SalRequest.MessageType.WebsiteConnected)
 			{
 				SalResponse.UsageReply[] reply = this.Plugin.ChatPlugins.GetPluginUsage(message).ToArray();
-				//Формирую список шорткатов для пользователя
+				//Build list of shortcuts for user
 				this.BotClient.SetMyCommandsAsync(reply.Select(p => new BotCommand() { Command = p.Key, Description = p.Description }).ToArray())
 					.ContinueWith(t => this.Plugin.Trace.TraceData(TraceEventType.Error, 7, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
 			} else
@@ -416,7 +413,7 @@ namespace Plugin.TelegramBot
 				IEnumerable<SalResponse.Reply> result = this.Plugin.ChatPlugins.GetPluginReply(message);
 
 				if(result == null)
-				{//Получение описаний вариантов использования плагинов
+				{//Get descriptions of plugin usage options
 					this.TraceUnknownMessage(message);
 					result = this.GetUsageReply(message);
 				}
@@ -431,9 +428,9 @@ namespace Plugin.TelegramBot
 			}
 		}
 
-		/// <summary>Получить варианты использования бота</summary>
-		/// <param name="message">Прервоначальное сообщение клиента</param>
-		/// <returns>Список возможных вариантов действия</returns>
+		/// <summary>Get bot usage options</summary>
+		/// <param name="message">Initial client message</param>
+		/// <returns>List of possible actions</returns>
 		private IEnumerable<SalResponse.Reply> GetUsageReply(SalRequest.Message message)
 		{
 			List<String> usageMessage = new List<String>();
@@ -453,7 +450,7 @@ namespace Plugin.TelegramBot
 
 		#region SampleData
 		private void BotOnChosenInlineResultReceived(Object sender, ChosenInlineResultEventArgs args)
-			=> this.Plugin.Trace.TraceEvent(TraceEventType.Verbose, 1, String.Format("Received choosen inline result: {0}", args.ChosenInlineResult.ResultId));
+			=> this.Plugin.Trace.TraceEvent(TraceEventType.Verbose, 1, String.Format("Received chosen inline result: {0}", args.ChosenInlineResult.ResultId));
 
 		private async void BotOnInlineQueryReceived(Object sender, InlineQueryEventArgs args)
 		{

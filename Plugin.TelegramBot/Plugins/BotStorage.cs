@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Caching;
-using SAL.Interface.TelegramBot;
-using SAL.Interface.TelegramBot.Request;
-using SAL.Interface.TelegramBot.Response;
 using Plugin.TelegramBot.Data;
 using SAL.Flatbed;
+using SAL.Interface.TelegramBot.Request;
+using SAL.Interface.TelegramBot.Response;
 
 namespace Plugin.TelegramBot.Plugins
 {
-	/// <summary>Хранилище чатов</summary>
+	/// <summary>Chat storage</summary>
 	internal class BotStorage
 	{
 		private readonly IHost _host;
 		private readonly Plugin _plugin;
-		private readonly Lazy<MemoryCache> _chatCache = new Lazy<MemoryCache>(delegate { return new MemoryCache("Plugin.TelegramBot"); });
+		private readonly Lazy<MemoryCache> _chatCache = new Lazy<MemoryCache>(() => new MemoryCache("Plugin.TelegramBot"));
 
 		private readonly Object _chatPluginsLock = new Object();
 		private BotPluginResolver[] _chatPlugins;
 
-		internal MemoryCache ChatCache { get { return _chatCache.Value; } }
+		internal MemoryCache ChatCache { get => _chatCache.Value; }
 
 		public BotStorage(Plugin plugin, IHost host)
 		{
@@ -51,7 +49,7 @@ namespace Plugin.TelegramBot.Plugins
 
 						if(priority.Length > 0)
 							for(Int32 loop = 0; loop < priority.Length; loop++)
-							{//TODO: Если в приоритете плагин не найдётся, то иерархия сломается
+							{//TODO: If plugin not found in priority list the hierarchy will break
 								String pluginKey = priority[loop];
 								for(Int32 innerLoop = 0; innerLoop < plugins.Count; innerLoop++)
 								{
@@ -87,9 +85,9 @@ namespace Plugin.TelegramBot.Plugins
 			return this._chatPlugins;
 		}
 
-		/// <summary>Обработать сообщение и получить ответ от плагина</summary>
-		/// <param name="message">Обрабатываемое сообщение от телеграма</param>
-		/// <returns>Ответ от плагина</returns>
+		/// <summary>Process message and get reply from plugin</summary>
+		/// <param name="message">Message received from Telegram</param>
+		/// <returns>Reply from plugin</returns>
 		public IEnumerable<Reply> GetPluginReply(Message message)
 		{
 			MessageParser parsedMessage = new MessageParser(message);
@@ -104,10 +102,7 @@ namespace Plugin.TelegramBot.Plugins
 			if(replies != null && replies.Length > 0)
 				return replies;
 
-			replies = this.GetPluginReply(delegate (BotChatFacade instance)
-			{
-				return instance.ProcessMessage(parsedMessage.Message);
-			});
+			replies = this.GetPluginReply((instance)=> instance.ProcessMessage(parsedMessage.Message));
 
 			if(replies != null && replies.Length > 0)
 				return replies;
@@ -127,9 +122,9 @@ namespace Plugin.TelegramBot.Plugins
 			return null;
 		}
 
-		/// <summary>Получить информацию о вариантах использования плагинов</summary>
-		/// <param name="message">Обрабатываемое сообщение от телеграмма</param>
-		/// <returns>Список использования плагинов</returns>
+		/// <summary>Get information about plugin usage options</summary>
+		/// <param name="message">Message received from Telegram</param>
+		/// <returns>List of plugin usage entries</returns>
 		public IEnumerable<UsageReply> GetPluginUsage(Message message)
 		{
 			foreach(BotPluginResolver resolver in this.ResolveBotPlugins())

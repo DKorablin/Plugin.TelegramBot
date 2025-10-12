@@ -32,16 +32,16 @@ namespace Plugin.TelegramBot
 				return new String[] { source };
 		}
 
-		/// <summary>Скомпиленная регулярка для удаления тегов из текста</summary>
+		/// <summary>Compiled regex for removing tags from text</summary>
 		private readonly static Regex RemoveTagsRegex = new Regex(@"</?([^>]+)>", RegexOptions.Compiled);
 
 		public static String FormatHtml(String html)
 			=> Utils.FormatHtml(html, new String[] { "b", "i", "u", "s", "a", "code", "pre", });
 
-		/// <summary>Отформатировать все теги из HTML сообщения</summary>
-		/// <param name="html">Текст в HTML формате из которого удалить лишние теги</param>
-		/// <param name="safeTags">Массив тегов, которые не нужно убирать</param>
-		/// <returns>Результат без HTML содержимого</returns>
+		/// <summary>Format all tags in HTML message</summary>
+		/// <param name="html">Text in HTML format from which to remove extra tags</param>
+		/// <param name="safeTags">Array of tags that should not be removed</param>
+		/// <returns>Result without HTML content</returns>
 		public static String FormatHtml(String html, String[] safeTags)
 		{
 			if(String.IsNullOrEmpty(html))
@@ -53,7 +53,7 @@ namespace Plugin.TelegramBot
 				for(Int32 loop = matches.Count - 1; loop >= 0; loop--)
 				{
 					Match match = matches[loop];
-					if(safeTags != null && Array.Exists(safeTags, delegate (String p) { return match.Groups[1].Value.Equals(p, StringComparison.OrdinalIgnoreCase) || match.Groups[1].Value.StartsWith(p + " ", StringComparison.InvariantCultureIgnoreCase); }))
+					if(safeTags != null && Array.Exists(safeTags, (p) => match.Groups[1].Value.Equals(p, StringComparison.OrdinalIgnoreCase) || match.Groups[1].Value.StartsWith(p + " ", StringComparison.InvariantCultureIgnoreCase)))
 						continue;
 
 					html = html.Remove(match.Index, match.Length);

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Plugin.TelegramBot
 {
-	/// <summary>Расширение для локального кеширования</summary>
+	/// <summary>Extension for local caching</summary>
 	internal static class MemoryCacheExtension
 	{
 		private struct ExpirationPolicy
@@ -16,26 +16,26 @@ namespace Plugin.TelegramBot
 				this._slidingExpiration = slidingExpiration;
 				this._absoluteExpiration = absoluteExpiration;
 			}
-			public override Int32 GetHashCode()
-			{
-				return (this._slidingExpiration.HasValue ? this._slidingExpiration.Value.GetHashCode() : 0)
-					^ (this._absoluteExpiration.HasValue ? this._absoluteExpiration.Value.GetHashCode() : 0);
-			}
-		}
-		private static Object _policyLock = new Object();
-		private static Dictionary<ExpirationPolicy, CacheItemPolicy> _policy = new Dictionary<ExpirationPolicy, CacheItemPolicy>();
 
-		/// <summary>Получить из кеша объект. Если объекта нет, то создать объект выполнив метод</summary>
-		/// <typeparam name="T">Тип объекта в кеше</typeparam>
-		/// <param name="cache">Объект кеширования</param>
-		/// <param name="key">Ключ</param>
-		/// <param name="slidingExpiration">Скользящий срок</param>
-		/// <param name="absoluteExpiration">Абсолютный срок</param>
-		/// <param name="method">Вызываемый метод, если в кеше ничего нет</param>
-		/// <returns>Объект из кеша</returns>
+			public override Int32 GetHashCode()
+				=> (this._slidingExpiration.HasValue ? this._slidingExpiration.Value.GetHashCode() : 0)
+					^ (this._absoluteExpiration.HasValue ? this._absoluteExpiration.Value.GetHashCode() : 0);
+		}
+
+		private static readonly Object _policyLock = new Object();
+		private static readonly Dictionary<ExpirationPolicy, CacheItemPolicy> _policy = new Dictionary<ExpirationPolicy, CacheItemPolicy>();
+
+		/// <summary>Get object from cache; if it does not exist create it by invoking method.</summary>
+		/// <typeparam name="T">Type of cached object</typeparam>
+		/// <param name="cache">Cache instance</param>
+		/// <param name="key">The cache key identifier.</param>
+		/// <param name="slidingExpiration">Sliding expiration</param>
+		/// <param name="absoluteExpiration">Absolute expiration</param>
+		/// <param name="method">Method invoked if cache entry does not exist</param>
+		/// <returns>Object from cache</returns>
 		public static T GetFromCache<T>(this MemoryCache cache, String key, TimeSpan? slidingExpiration, DateTimeOffset? absoluteExpiration, Func<T> method)
 		{
-			Object result = cache.Get(key);//Т.к. в кеше может лежать структура
+			Object result = cache.Get(key);//Because the cache may store a struct
 			if(result == null && method != null)
 			{
 				result = method();
@@ -44,13 +44,13 @@ namespace Plugin.TelegramBot
 			return (T)result;
 		}
 
-		/// <summary>banana banana banana</summary>
-		/// <typeparam name="T">Тип объекта в кеше</typeparam>
-		/// <param name="cache">Объект кеширования</param>
-		/// <param name="key">Ключ</param>
-		/// <param name="slidingExpiration">Скользящий срок</param>
-		/// <param name="absoluteExpiration">Абсолютный срок</param>
-		/// <param name="value">Значение, которое необходимо положить в кеш</param>
+		/// <summary>Insert value into cache with specified expiration policy.</summary>
+		/// <typeparam name="T">Type of cached object</typeparam>
+		/// <param name="cache">Cache instance</param>
+		/// <param name="key">Key</param>
+		/// <param name="slidingExpiration">Sliding expiration</param>
+		/// <param name="absoluteExpiration">Absolute expiration</param>
+		/// <param name="value">Value to put into cache</param>
 		public static void InsertToCache<T>(this MemoryCache cache, String key, TimeSpan? slidingExpiration, DateTimeOffset? absoluteExpiration, T value)
 		{
 			if(value == null)
@@ -68,11 +68,10 @@ namespace Plugin.TelegramBot
 		private static CacheItemPolicy GetPolicy(TimeSpan? slidingExpiration, DateTimeOffset? absoluteExpiration)
 		{
 			if(slidingExpiration == null && absoluteExpiration == null)
-				throw new ArgumentNullException();
+				throw new ArgumentException($"{nameof(slidingExpiration)} or {nameof(absoluteExpiration)} should be not null");
 
-			CacheItemPolicy result;
 			ExpirationPolicy expPolicy = new ExpirationPolicy(slidingExpiration, absoluteExpiration);
-			if(!_policy.TryGetValue(expPolicy, out result))
+			if(!_policy.TryGetValue(expPolicy, out CacheItemPolicy result))
 			{
 				lock(_policyLock)
 				{

@@ -10,16 +10,16 @@ namespace Plugin.TelegramBot.Data
 	internal static class Dto
 	{
 		/// <summary>Converts Telegram callbackQuery to internal message</summary>
-		/// <param name="query">Callbal query</param>
+		/// <param name="query">Callback query</param>
 		/// <returns>internal message</returns>
 		public static SalRequest.Message Convert(CallbackQuery query)
 		{
 			SalRequest.Message result = Dto.Convert(query.Message);
 			result.Data = query.Data;
 
-			// Переписываю свойство From, ибо при CallbackQuery свойство From соответствует идентификатору бота
+			// I'm rewriting the From property, because with CallbackQuery the From property corresponds to the bot ID.
 			result.From = new SalRequest.User() { UserId = query.From.Id, UserName = query.From.Username, FirstName = query.From.FirstName, LastName = query.From.LastName, };
-			result.Type = SalRequest.MessageType.CallbackQuery;//TODO: Тут надо проверить чтобы не приходили другие типы в инлайне
+			result.Type = SalRequest.MessageType.CallbackQuery;//TODO: Here we need to check that other types do not come inline
 			return result;
 		}
 
@@ -86,7 +86,7 @@ namespace Plugin.TelegramBot.Data
 		}
 
 		/// <summary>Converts Telegram keyboard markup to internal markup</summary>
-		/// <param name="markup">Telegram keyboard markyp</param>
+		/// <param name="markup">Telegram keyboard markup</param>
 		/// <returns>Internal keyboard markup</returns>
 		public static ReplyKeyboardMarkup Convert(SalResponse.KeyboardMarkup markup)
 		{
@@ -94,7 +94,7 @@ namespace Plugin.TelegramBot.Data
 				.Select(p => p.Select(n => new KeyboardButton(n.Text) { RequestContact = n.RequestContact, RequestLocation = n.RequestLocation }).ToArray())
 				.ToArray();
 
-			return new ReplyKeyboardMarkup(buttons, oneTimeKeyboard: markup.OneTimeKeybord);
+			return new ReplyKeyboardMarkup(buttons, oneTimeKeyboard: markup.OneTimeKeyboard);
 		}
 
 		/// <summary>Converts internal keyboard markup to Telegram keyboard markup</summary>

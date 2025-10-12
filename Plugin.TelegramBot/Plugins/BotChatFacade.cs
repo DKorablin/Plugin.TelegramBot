@@ -15,27 +15,27 @@ namespace Plugin.TelegramBot.Plugins
 	internal class BotChatFacade
 	{
 		private readonly IPluginDescription _botHost;
-		private readonly Lazy<MemoryCache> _instanceChatCache = new Lazy<MemoryCache>(delegate { return new MemoryCache("Telegram.Bot.Chat"); });
-		private readonly Lazy<MemoryCache> _instanceUserCache = new Lazy<MemoryCache>(delegate { return new MemoryCache("Telegram.Bot.User"); });
+		private readonly Lazy<MemoryCache> _instanceChatCache = new Lazy<MemoryCache>(() => new MemoryCache("Telegram.Bot.Chat"));
+		private readonly Lazy<MemoryCache> _instanceUserCache = new Lazy<MemoryCache>(() => new MemoryCache("Telegram.Bot.User"));
 
 		private ConstructorInfo _ctor;
 		private IChatMarker _instance;
 		
-		private Dictionary<String, MethodInfo> _chatMethods = new Dictionary<String, MethodInfo>();
-		private Dictionary<Int32, MethodInfo> _chatReplyToMethods = new Dictionary<Int32, MethodInfo>();
-		private Dictionary<Int32, MethodInfo> _callbackMethods = new Dictionary<Int32, MethodInfo>();
+		private readonly Dictionary<String, MethodInfo> _chatMethods = new Dictionary<String, MethodInfo>();
+		private readonly Dictionary<Int32, MethodInfo> _chatReplyToMethods = new Dictionary<Int32, MethodInfo>();
+		private readonly Dictionary<Int32, MethodInfo> _callbackMethods = new Dictionary<Int32, MethodInfo>();
 
-		/// <summary>Для инстанса найден конструтор и определна возможность для создания инстанса через конструктор</summary>
+		/// <summary>Constructor found and instance can be created via this constructor</summary>
 		public Boolean IsConnected { get { return this._ctor != null; } }
 
-		/// <summary>Тип инстанса который используется для создания самого инстанса</summary>
+		/// <summary>Type of instance used to create the chat instance</summary>
 		public Type Type { get; }
 
-		/// <summary>Тип кеширования инстанса</summary>
+		/// <summary>Instance caching lifecycle type</summary>
 		public LifeCycle LifeCycle { get; private set; }
 
-		private Boolean _hasUsage;
-		private Boolean _hasProcessor;
+		private readonly Boolean _hasUsage;
+		private readonly Boolean _hasProcessor;
 
 		public BotChatFacade(IPluginDescription botHost, Type instanceType)
 		{
@@ -85,22 +85,16 @@ namespace Plugin.TelegramBot.Plugins
 			{
 				IChatProcessor instance = this.GetChatInstance<IChatProcessor>(message);
 				IEnumerable<Reply> replies = instance.ProcessMessage(message);
-				return replies == null
-					? null
-					: replies.ToArray();
+				return replies?.ToArray();
 			} else
 				return null;
 		}
 
 		public Reply[] Invoke(MessageParser parser,MethodInfo method)
-		{
-			return Invoke(parser.Message, method, parser.Args);
-		}
+			=> this.Invoke(parser.Message, method, parser.Args);
 
 		public Reply[] Invoke(Message message, MethodInfo method, String[] args = null)
-		{
-			return InvokeI(message, this.GetChatInstance<IChatMarker>(message), args, method);
-		}
+			=> InvokeI(message, this.GetChatInstance<IChatMarker>(message), args, method);
 
 		private static Reply[] InvokeI(Message message, Object instance, String[] args, params MethodInfo[] methods)
 		{
@@ -131,8 +125,8 @@ namespace Plugin.TelegramBot.Plugins
 			return null;
 		}
 
-		/// <summary>Получить инстанс чата исходя из сообщения</summary>
-		/// <param name="message">Сообщение</param>
+		/// <summary>Get chat instance based on the message</summary>
+		/// <param name="message">The message to process</param>
 		/// <returns></returns>
 		protected T GetChatInstance<T>(Message message) where T : IChatMarker
 		{
@@ -169,47 +163,47 @@ namespace Plugin.TelegramBot.Plugins
 			List<Object> values = new List<Object>(parameters.Length);
 			foreach(ParameterInfo parameter in parameters)
 				if(parameter.ParameterType == this._botHost.Instance.GetType())
-					values.Add(this._botHost.Instance);//Интерфейс плагина
+					values.Add(this._botHost.Instance);//Plugin interface
 				else if(parameter.ParameterType == typeof(Chat))
-					values.Add(message.Chat);//Идентификатор чата
+					values.Add(message.Chat);//Chat identifier
 				else if(parameter.ParameterType == typeof(User))
-					values.Add(message.From);//Идентификатор пользователя
+					values.Add(message.From);//User identifier
 				else if(parameter.ParameterType == typeof(Message))
-					values.Add(message);//Сообщение
+					values.Add(message);//Message
 				else throw new NotSupportedException();
 
 			return (T)this._ctor.Invoke(values.ToArray());
 		}
 
-		/// <summary>Выбираем конструктор и регламент кеширования инстанса</summary>
+		/// <summary>Select constructor and define instance caching lifecycle</summary>
 		private void SpecifyCtor()
 		{
 			foreach(ConstructorInfo ctor in this.Type
 				.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
 				.OrderByDescending(p => p.GetParameters().Length))
 			{
-				//TODO: Нужен IoC контейнер с поддерживаемыми типами
+				//TODO: Need IoC container with supported types
 				ParameterInfo[] parameters = ctor.GetParameters();
 				if(parameters.Length == 0
 					|| parameters.All(p => p.ParameterType == this._botHost.Instance.GetType()))
-				{//Один инстанс чата на весь процесс
+				{//Single chat instance for entire process
 					this._ctor = ctor;
 					this.LifeCycle = LifeCycle.Singleton;
 					break;
 				} else if(parameters.All(p => p.ParameterType == this._botHost.Instance.GetType()
 					|| p.ParameterType == typeof(Chat)))
-				{//Чат для всего чата целиком
+				{//Instance per chat
 					this._ctor = ctor;
 					this.LifeCycle = LifeCycle.ChatSingleton;
 					break;
 				} else if(parameters.All(p => p.ParameterType == this._botHost.Instance.GetType()
 					|| p.ParameterType == typeof(User)))
-				{//Чат для конкретного пользователя
+				{//Instance per user
 					this._ctor = ctor;
 					this.LifeCycle = LifeCycle.UserSingleton;
 				} else if(parameters.All(p => p.ParameterType == this._botHost.Instance.GetType()
 					 || p.ParameterType == typeof(Message)))
-				{//Чат для каждого сообщения
+				{//Instance per message
 					this._ctor = ctor;
 					this.LifeCycle = LifeCycle.Transient;
 				}

@@ -6,11 +6,17 @@ namespace Plugin.TelegramBot.Data
 	internal class MessageParser
 	{
 		public String Command { get; private set; }
+
 		public String MethodName { get; private set; }
+
 		public Int32? MethodHash { get; private set; }
+
 		public Int32? ReplyToMessageHash { get; private set; }
+
 		public String[] Args { get; private set; }
+
 		public Message Message { get; }
+
 		public MessageParser(Message message)
 		{
 			this.Message = message ?? throw new ArgumentNullException(nameof(message));
@@ -30,8 +36,7 @@ namespace Plugin.TelegramBot.Data
 				if(methodEnd > -1)
 				{
 					this.MethodName = this.Command.Substring(1, methodEnd - 1);
-					Int32 methodId;
-					if(Int32.TryParse(this.MethodName, out methodId))
+					if(Int32.TryParse(this.MethodName, out Int32 methodId))
 					{
 						this.MethodHash = methodId;
 						if(this.Command.Length > methodEnd + 1)
@@ -47,8 +52,8 @@ namespace Plugin.TelegramBot.Data
 					if(methodEnd > -1)
 					{
 						this.MethodName = this.Command.Substring(0, methodEnd);
-						this.Args = this.Command.Substring(methodEnd + 1).Split(new Char[] { '_' });
-					} else//В случае если команда без аргументов
+						this.Args = this.Command.Substring(methodEnd + 1).Split('_');
+					} else//If the command has no arguments
 						this.MethodName = this.Command;
 				}
 			} else if(message.ReplyToMessage != null && message.ReplyToMessage.Text != null)

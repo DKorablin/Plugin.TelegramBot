@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace Plugin.TelegramBot.Data
 {
@@ -12,7 +11,7 @@ namespace Plugin.TelegramBot.Data
 		/// <summary>Runtime chat options</summary>
 		internal class RuntimeChatOptions
 		{
-			/// <summary>This chat is temporary locked by Temegram ssystem</summary>
+			/// <summary>This chat is temporary locked by Telegram system</summary>
 			/// <remarks>For example: Too many requests</remarks>
 			public DateTime? TemporaryLocked { get; set; }
 		}
@@ -20,7 +19,7 @@ namespace Plugin.TelegramBot.Data
 		private readonly ConcurrentDictionary<Int64, RuntimeChatOptions> _optionsCollection = new ConcurrentDictionary<Int64, RuntimeChatOptions>();
 		
 		/// <summary>Lock chat because too many messages to this chat</summary>
-		/// <param name="chatId">ID of the chat whta need to be temporary lock</param>
+		/// <param name="chatId">ID of the chat which need to be temporary locked</param>
 		public void TooManyRequestsLock(Int64 chatId)
 		{
 			RuntimeChatOptions options = this.GetOptions(chatId);
@@ -28,13 +27,12 @@ namespace Plugin.TelegramBot.Data
 		}
 
 
-		/// <summary>Check the chat for too mayny requests lock</summary>
-		/// <param name="chatId">ID of the chat what we need to check for too namy messages</param>
+		/// <summary>Check the chat for too many requests lock</summary>
+		/// <param name="chatId">ID of the chat what we need to check for too many messages</param>
 		/// <returns>Chat is locked</returns>
 		public Boolean IsTooManyRequestsLock(Int64 chatId)
 		{
-			RuntimeChatOptions options;
-			if(this._optionsCollection.TryGetValue(chatId, out options))
+			if(this._optionsCollection.TryGetValue(chatId, out RuntimeChatOptions options))
 			{
 				if(options.TemporaryLocked != null && options.TemporaryLocked > DateTime.Now)
 					return true;
@@ -45,8 +43,6 @@ namespace Plugin.TelegramBot.Data
 		}
 
 		private RuntimeChatOptions GetOptions(Int64 chatId)
-		{
-			return this._optionsCollection.GetOrAdd(chatId, (Int64) => { return new RuntimeChatOptions(); });
-		}
+			=> this._optionsCollection.GetOrAdd(chatId, (Int64) => new RuntimeChatOptions());
 	}
 }

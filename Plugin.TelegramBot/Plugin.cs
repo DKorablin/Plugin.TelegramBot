@@ -16,15 +16,15 @@ namespace Plugin.TelegramBot
 		private readonly IHost _host;
 		private BotHost _botHost;
 
-		/// <summary>The event is fired when plugin connents to Telegram servers.</summary>
+		/// <summary>The event is fired when plugin connects to Telegram servers.</summary>
 		public event EventHandler<DataEventArgs> Connected;
 
-		/// <summary>The event is fired when plugin disconnets from Telegram servers.</summary>
+		/// <summary>The event is fired when plugin disconnects from Telegram servers.</summary>
 		public event EventHandler<DataEventArgs> Disconnected;
 
 		internal TraceSource Trace { get => this._trace ?? (this._trace = Plugin.CreateTraceSource<Plugin>()); }
 
-		/// <summary>Настройки для взаимодействия из плагина</summary>
+		/// <summary>Settings for interaction from the plugin</summary>
 		public PluginSettings Settings
 		{
 			get
@@ -60,7 +60,7 @@ namespace Plugin.TelegramBot
 
 			this.ChatPlugins = new BotStorage(this, this._host);
 
-			//TODO: Проверить что все плагины уже загружены
+			//TODO: Check that all plugins are already loaded.
 			this._botHost = new BotHost(this, this.Settings.Token);
 
 			return true;
@@ -79,15 +79,15 @@ namespace Plugin.TelegramBot
 			=> this.Disconnected?.Invoke(this, DataEventArgs.Empty);
 
 		#region Bot Methods
-		/// <summary>Проверка подключения бота к серверу Telegram</summary>
-		/// <returns>Бот подключён к серверу Telegram и получает сообщения</returns>
+		/// <summary>Check bot connection to Telegram server</summary>
+		/// <returns>Bot is connected to Telegram server and receiving messages</returns>
 		public Boolean IsConnected()
-			=> this._botHost?.IsRecieving == true;
+			=> this._botHost?.IsReceiving == true;
 
-		/// <summary>Отправить сообщение в чат клиенту</summary>
-		/// <param name="chatId">Идентификатор чата в который отправить сообщение</param>
-		/// <param name="message">Сообщение для отправки в чат</param>
-		/// <exception cref="InvalidOperationException">Бот отключён от сервера Telegram</exception>
+		/// <summary>Send message to client chat</summary>
+		/// <param name="chatId">Chat identifier to send message to</param>
+		/// <param name="message">Message to send to chat</param>
+		/// <exception cref="InvalidOperationException">Bot disconnected from Telegram server</exception>
 		public void SendMessageToChat(Int64 chatId, String message)
 		{
 			if(!this.IsConnected())
@@ -96,10 +96,10 @@ namespace Plugin.TelegramBot
 			this._botHost.SendMessageToChat(chatId, message);
 		}
 
-		/// <summary>Отправить файл в чат клиенту</summary>
-		/// <param name="chatId">Идентификатор чата в который отправить сообщение</param>
-		/// <param name="name">Наименование отправляемого файла</param>
-		/// <param name="payload">Содержимое файла</param>
+		/// <summary>Send file to client chat</summary>
+		/// <param name="chatId">Chat identifier to send message to</param>
+		/// <param name="name">Name of file to send</param>
+		/// <param name="payload">File content</param>
 		public void SendMessageToChat(Int64 chatId, String name, Byte[] payload)
 		{
 			if(!this.IsConnected())
@@ -108,9 +108,9 @@ namespace Plugin.TelegramBot
 			this._botHost.SendMessageToChat(chatId, name, payload);
 		}
 
-		/// <summary>Скачать документ переданный от клиента</summary>
-		/// <param name="fileId">Идентификатор документа от клиента</param>
-		/// <returns>Поток данных от клиента</returns>
+		/// <summary>Download document sent from client</summary>
+		/// <param name="fileId">Client document identifier</param>
+		/// <returns>Data stream from client</returns>
 		public Stream DownloadDocument(String fileId)
 		{
 			if(!this.IsConnected())

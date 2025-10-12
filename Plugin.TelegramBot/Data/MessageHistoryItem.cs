@@ -4,19 +4,22 @@ using SAL.Interface.TelegramBot.Request;
 
 namespace Plugin.TelegramBot.Data
 {
-	/// <summary>Элемент истории общения с клиентом</summary>
+	/// <summary>Element of client communication history</summary>
 	[DebuggerDisplay("Message=\"{Message}\", Date=\"{MessageDate}\"")]
 	internal class MessageHistoryItem
 	{
-		/// <summary>Сообщение клиента</summary>
+		/// <summary>The client message</summary>
 		public Message Message { get; private set; }
 
-		/// <summary>Идентификатор плагина, который ответил на сообщение клиента</summary>
+		/// <summary>The ID of the plugin that responded to the client's message</summary>
 		public String PluginId { get; private set; }
 
-		/// <summary>Дата сообщения</summary>
+		/// <summary>Date of message</summary>
 		public DateTime MessageDate { get; private set; }
 
+		/// <summary>Create instance of <see cref="MessageHistoryItem"/> with required arguments.</summary>
+		/// <param name="pluginId">The plugin identifier.</param>
+		/// <param name="message">The users message.</param>
 		public MessageHistoryItem(String pluginId, Message message)
 		{
 			this.Message = message;
