@@ -4,10 +4,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageVersion Include="SAL.Flatbed" Version="1.2.10">
+		<PackageVersion Include="SAL.Flatbed" Version="1.2.11">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageVersion>
-		<PackageVersion Include="SAL.Interface.TelegramBot" Version="1.1.3" />
+		<PackageVersion Include="SAL.Interface.TelegramBot" Version="1.1.4" />
 		<PackageVersion Include="System.Runtime.Caching" Version="9.0.9"/>
 		<PackageVersion Include="Telegram.Bot" Version="16.0.2" />
 		<!--Analyzers-->
