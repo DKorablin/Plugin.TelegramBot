@@ -57,7 +57,7 @@ jobs:
     steps:
     - name: Updating version number
       id: tag_version
-      uses: nickkostov/github-tag-action@master
+      uses: nickkostov/github-tag-action@latest
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         custom_tag: ${{github.event.inputs.newVersion}}
