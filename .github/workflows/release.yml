@@ -33,6 +33,8 @@ on:
 permissions:
   contents: write      # Needed for creating releases and tags
   packages: write      # Needed for pushing to GitHub Packages
+  issues: write        # Added for semantic-release to create release notes
+  pull-requests: write # Added for semantic-release to create release notes
 
 env:
   SolutionName: ${{github.event.repository.name}}
@@ -55,7 +57,7 @@ jobs:
     steps:
     - name: Updating version number
       id: tag_version
-      uses: step-security/github-tag-action@v6
+      uses: nickkostov/github-tag-action@v6.2
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         custom_tag: ${{github.event.inputs.newVersion}}
