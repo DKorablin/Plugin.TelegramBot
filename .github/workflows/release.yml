@@ -113,31 +113,13 @@ jobs:
         echo "files_to_sign<<EOF" >> $env:GITHUB_OUTPUT
         echo $multiLineString >> $env:GITHUB_OUTPUT
         echo "EOF" >> $env:GITHUB_OUTPUT
-#    - name: Signing portable executables
-#      uses: dlemstra/code-sign-action@v1
-#      with:
-#        certificate: '${{secrets.SIGN_PE_CERTIFICATE}}'
-#        password: '${{secrets.SIGN_PE_PASSWORD}}'
-#        recursive: false
-#        files: ${{steps.find_binaries.outputs.files_to_sign}}
-    - name: Decoding certificate
-      id: sign_pe_file
-      uses: timheuer/base64-to-file@v2
-      with:
-        fileName: 'certificate.pfx'
-        encodedString: ${{secrets.SIGN_PE_CERTIFICATE}}
-    - name: Install dotnet sign tool
-      run: dotnet tool install --global sign --prerelease
-
     - name: Signing portable executables
-      run: |
-        sign code certificate-store `
-          --certificate-file ${{steps.sign_pe_file.outputs.filePath}} `
-          --password "${{secrets.SIGN_PE_PASSWORD}}" `
-          --description "${{env.SolutionName}}" `
-          --timestamp-url http://timestamp.digicert.com `
-          --verbosity Information `
-          ${{steps.find_binaries.outputs.files_to_sign}}
+      uses: dlemstra/code-sign-action@v1
+      with:
+        certificate: '${{secrets.SIGN_PE_CERTIFICATE}}'
+        password: '${{secrets.SIGN_PE_PASSWORD}}'
+        recursive: false
+        files: ${{steps.find_binaries.outputs.files_to_sign}}
     - name: Cleanup
       if: always()
       run: Remove-Item ${{steps.sign_pe_file.outputs.filePath}}
