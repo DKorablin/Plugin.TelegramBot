@@ -121,7 +121,7 @@ jobs:
 #        recursive: false
 #        files: ${{steps.find_binaries.outputs.files_to_sign}}
     - name: Decoding certificate
-      id: sign_key_file
+      id: sign_pe_file
       uses: timheuer/base64-to-file@v2
       with:
         fileName: 'certificate.pfx'
@@ -132,7 +132,7 @@ jobs:
     - name: Signing portable executables
       run: |
         sign code certificate `
-          --certificate-file certificate.pfx `
+          --certificate-file ${{steps.sign_pe_file.outputs.filePath}} `
           --password "${{secrets.SIGN_PE_PASSWORD}}" `
           --description "${{env.SolutionName}}" `
           --timestamp-url http://timestamp.digicert.com `
