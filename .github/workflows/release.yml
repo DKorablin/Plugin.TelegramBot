@@ -120,10 +120,12 @@ jobs:
 #        password: '${{secrets.SIGN_PE_PASSWORD}}'
 #        recursive: false
 #        files: ${{steps.find_binaries.outputs.files_to_sign}}
-    - name: Decode Certificate
-      run: |
-        [System.Convert]::FromBase64String("${{secrets.SIGN_PE_CERTIFICATE}}") | Set-Content -Path certificate.pfx -AsByteStream
-
+    - name: Decoding certificate
+      id: sign_key_file
+      uses: timheuer/base64-to-file@v2
+      with:
+        fileName: 'certificate.pfx'
+        encodedString: ${{secrets.SIGN_PE_CERTIFICATE}}
     - name: Install dotnet sign tool
       run: dotnet tool install --global sign --prerelease
 
