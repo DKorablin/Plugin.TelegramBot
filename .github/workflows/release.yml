@@ -78,14 +78,14 @@ jobs:
         token: ${{secrets.SUBMODULE_TOKEN}}
         submodules: true
     - name: Caching NuGet packages
-      uses: actions/cache@latest
+      uses: actions/cache@main
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('/Directory.Packages.props', '/nuget.config') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@latest
+      uses: microsoft/setup-msbuild@main
     - name: Restore
       run: msbuild ${{env.SolutionName}}.sln /t:Restore
     - name: Build multi-target project
@@ -157,7 +157,7 @@ jobs:
     if: always() && needs.build_net.result != 'success'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@latest
+    - uses: actions/checkout@main
       with:
         token: ${{secrets.SUBMODULE_TOKEN}}
         submodules: false
