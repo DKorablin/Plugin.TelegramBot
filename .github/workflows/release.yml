@@ -73,19 +73,19 @@ jobs:
       with:
         fileName: 'Signature.snk'
         encodedString: ${{secrets.SIGN_ASM_KEY}}
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@latest
       with:
         token: ${{secrets.SUBMODULE_TOKEN}}
         submodules: true
     - name: Caching NuGet packages
-      uses: actions/cache@v4
+      uses: actions/cache@latest
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('/Directory.Packages.props', '/nuget.config') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@latest
     - name: Restore
       run: msbuild ${{env.SolutionName}}.sln /t:Restore
     - name: Build multi-target project
@@ -157,7 +157,7 @@ jobs:
     if: always() && needs.build_net.result != 'success'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@latest
       with:
         token: ${{secrets.SUBMODULE_TOKEN}}
         submodules: false
