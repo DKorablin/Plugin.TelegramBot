@@ -113,13 +113,32 @@ jobs:
         echo "files_to_sign<<EOF" >> $env:GITHUB_OUTPUT
         echo $multiLineString >> $env:GITHUB_OUTPUT
         echo "EOF" >> $env:GITHUB_OUTPUT
+#    - name: Signing portable executables
+#      uses: dlemstra/code-sign-action@v1
+#      with:
+#        certificate: '${{secrets.SIGN_PE_CERTIFICATE}}'
+#        password: '${{secrets.SIGN_PE_PASSWORD}}'
+#        recursive: false
+#        files: ${{steps.find_binaries.outputs.files_to_sign}}
+    - name: Decode Certificate
+      run: |
+        [System.Convert]::FromBase64String("${{secrets.SIGN_PE_CERTIFICATE}}") | Set-Content -Path certificate.pfx -AsByteStream
+
+    - name: Install dotnet sign tool
+      run: dotnet tool install --global sign --prerelease
+
     - name: Signing portable executables
-      uses: dlemstra/code-sign-action@v1
-      with:
-        certificate: '${{secrets.SIGN_PE_CERTIFICATE}}'
-        password: '${{secrets.SIGN_PE_PASSWORD}}'
-        recursive: false
-        files: ${{steps.find_binaries.outputs.files_to_sign}}
+      run: |
+        sign code certificate `
+          --certificate-file certificate.pfx `
+          --password "${{secrets.SIGN_PE_PASSWORD}}" `
+          --description "${{env.SolutionName}}" `
+          --timestamp-url http://timestamp.digicert.com `
+          --verbosity Information `
+          ${{steps.find_binaries.outputs.files_to_sign}}
+    - name: Cleanup
+      if: always()
+      run: Remove-Item certificate.pfx
     - name: Creating NuGet package
       run: >
         dotnet pack ${{env.SolutionName}}.sln --no-build --no-restore -c Release -o ${{github.workspace}}\nupkg
