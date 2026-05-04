@@ -131,7 +131,7 @@ jobs:
 
     - name: Signing portable executables
       run: |
-        sign code certificate `
+        sign code certificate-store `
           --certificate-file ${{steps.sign_pe_file.outputs.filePath}} `
           --password "${{secrets.SIGN_PE_PASSWORD}}" `
           --description "${{env.SolutionName}}" `
@@ -140,7 +140,7 @@ jobs:
           ${{steps.find_binaries.outputs.files_to_sign}}
     - name: Cleanup
       if: always()
-      run: Remove-Item certificate.pfx
+      run: Remove-Item ${{steps.sign_pe_file.outputs.filePath}}
     - name: Creating NuGet package
       run: >
         dotnet pack ${{env.SolutionName}}.sln --no-build --no-restore -c Release -o ${{github.workspace}}\nupkg
