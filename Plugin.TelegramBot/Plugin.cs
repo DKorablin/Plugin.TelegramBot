@@ -10,7 +10,6 @@ namespace Plugin.TelegramBot
 	/// <summary>Startup plugin logic instance.</summary>
 	public class Plugin : IPlugin, IPluginSettings<PluginSettings>
 	{
-		private TraceSource _trace;
 		private PluginSettings _settings;
 		private ProxyPluginWrapper _proxyPlugin;
 		private readonly IHost _host;
@@ -22,7 +21,7 @@ namespace Plugin.TelegramBot
 		/// <summary>The event is fired when plugin disconnects from Telegram servers.</summary>
 		public event EventHandler<DataEventArgs> Disconnected;
 
-		internal TraceSource Trace { get => this._trace ?? (this._trace = Plugin.CreateTraceSource<Plugin>()); }
+		internal ITraceSource Trace { get; }
 
 		/// <summary>Settings for interaction from the plugin</summary>
 		public PluginSettings Settings
@@ -47,8 +46,11 @@ namespace Plugin.TelegramBot
 		/// <summary>Create instance if <see cref="Plugin"/> with the reference to host instance.</summary>
 		/// <param name="host">The host instance reference</param>
 		/// <exception cref="ArgumentNullException">The host instance reference should be specified</exception>
-		public Plugin(IHost host)
-			=> this._host = host ?? throw new ArgumentNullException(nameof(host));
+		public Plugin(IHost host, ITraceSource trace)
+		{
+			this._host = host ?? throw new ArgumentNullException(nameof(host));
+			this.Trace = trace ?? throw new ArgumentNullException(nameof(trace));
+		}
 
 		Boolean IPlugin.OnConnection(ConnectMode mode)
 		{
@@ -119,14 +121,5 @@ namespace Plugin.TelegramBot
 			return this._botHost.DownloadDocument(fileId);
 		}
 		#endregion Bot Methods
-
-		internal static TraceSource CreateTraceSource<T>(String name = null) where T : IPlugin
-		{
-			TraceSource result = new TraceSource(typeof(T).Assembly.GetName().Name + name);
-			result.Switch.Level = SourceLevels.All;
-			result.Listeners.Remove("Default");
-			result.Listeners.AddRange(System.Diagnostics.Trace.Listeners);
-			return result;
-		}
 	}
 }
